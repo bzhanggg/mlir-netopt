@@ -2,6 +2,8 @@
 
 #include "SpmcOps.h"
 #include "SpmcTypes.h"
+#include <mlir/IR/Builders.h>
+#include <llvm/ADT/TypeSwitch.h>
 
 #include "src/dialect/SpmcDialect.cpp.inc"
 #define GET_TYPEDEF_CLASSES

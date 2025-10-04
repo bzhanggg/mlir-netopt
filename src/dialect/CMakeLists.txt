@@ -15,13 +15,9 @@ add_dependencies(mlir-headers SpmcOpsIncGen)
 
 add_mlir_dialect_library(MLIRSpmc
     SpmcDialect.cpp
+    SpmcOps.cpp
     DEPENDS
         SpmcOpsIncGen
 
     LINK_LIBS PUBLIC
-        MLIRIR
-        MLIRSupport
-        MLIRInferTypeOpInterface
-        MLIRSideEffectInterfaces
-        MLIRBytecodeOpInterface
 )

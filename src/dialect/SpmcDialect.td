@@ -1,7 +1,7 @@
 #ifndef SPMC_DIALECT_TD_
 #define SPMC_DIALECT_TD_
 
-include "mlir/IR/DialectBase.td"
+include "mlir/IR/OpBase.td"
 
 def Spmc_Dialect : Dialect {
     let name = "spmc";
