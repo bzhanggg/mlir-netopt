@@ -5,4 +5,4 @@
 
 "spmc.push"(%q, %val) : (!spmc.queue<i32>, i32) -> ()
 
-%elt = "spmc.pop"(%q) : (!spmc.queue<i32>) -> (i32)
+%elt = "spmc.pop"(%q) : (!spmc.queue<i32>) -> i32
