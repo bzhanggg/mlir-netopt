@@ -1,5 +1,8 @@
 add_subdirectory(dialect)
 
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 # create compiler executable
 add_executable(spmcc spmcc.cpp)
 

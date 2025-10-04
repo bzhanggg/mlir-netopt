@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-project(mlir-netsec LANGUAGES CXX C)
+project(spmc LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -48,5 +48,9 @@ message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
 # Link MLIR libraries
 link_directories(${LLVM_BUILD_LIBRARY_DIR})
 add_definitions(${LLVM_DEFINITIONS})
+
+include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/llvm-project)
+include_directories(${PROJECT_BINARY_DIR})
 
 add_subdirectory(src)

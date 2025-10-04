@@ -1,48 +1,13 @@
 #ifndef SPMC_OPS_TD_
 #define SPMC_OPS_TD_
 
+include "SpmcDialect.td"
+include "SpmcTypes.td"
+
 include "mlir/IR/OpBase.td"
-include "mlir/IR/SymbolInterfaces.td"
+include "mlir/IR/BuiltinAttributes.td"
+include "mlir/Interfaces/InferTypeOpInterface.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"
-
-def Spmc_Dialect : Dialect {
-    let name = "spmc";
-    let summary = "A single producer, multiple consumer queue with thread-safe push/pop operations";
-    let description = [{
-        The Spmc dialect exposes APIs for safely pushing/popping from a ring buffer queue, with support
-        for multiple consumers and a single producer. It allows you to create queues of fixed size, standard
-        thread-safe push/pop operations, and a non-thread-safe print operation.
-    }];
-
-    let cppNamespace = "::mlir::spmc";
-}
-
-// Inherits from base TypeDef class. Provides:
-//  * Parent dialect of the type
-//  * Fully qualified name of the type
-//  * Mnemonic for the type (simplified name for internal reference)
-//  * A list of traits for the type
-class Spmc_Type<string name, string typeMnemonic, list<Trait> traits = []> : TypeDef<Spmc_Dialect, name, traits> {
-    let mnemonic = typeMnemonic;
-}
-
-def QueueType : Spmc_Type<"Queue", "queue"> {
-    let summary = "Queue type with fixed capacity and element type";
-    let description = [{
-        Queue types have a designated 32-bit capacity, and an element type determined
-        at compile-time.
-    }];
-
-    let parameters = (ins
-        TypeAttr:$type,             // i64, f32, etc.
-        UI32Attr:$capacity
-    );
-
-    // Example output: !spmc.queue<i32,16>
-    let assemblyFormat = "`<` $type `,` $capacity `>`";
-    let genVerifyDecl = 1;
-    let genMnemonicAlias = 1;
-}
 
 // Inherits from base Op class in OpBase.td. Provides:
 //  * Parent dialect of the operation
@@ -50,10 +15,10 @@ def QueueType : Spmc_Type<"Queue", "queue"> {
 //  * A list of traits for the operation
 class Spmc_Op<string mnemonic, list<Trait> traits = []> : Op<Spmc_Dialect, mnemonic, traits>;
 
-def CreateOp : Spmc_Op<"create", [Pure]> {
+def CreateOp : Spmc_Op<"create"> {
     let summary = "create queue";
     let description = [{
-        Create operations instantiates a queue (ring buffer) with a fixed capacity and element type,
+        Create operation instantiates a queue (ring buffer) with a fixed capacity and element type,
         both attached to the operation as attributes. For example:
 
         ```mlir
@@ -62,11 +27,55 @@ def CreateOp : Spmc_Op<"create", [Pure]> {
     }];
 
     let arguments = (ins
-        TypeAttr:$type,
+        TypeAttr:$element,
         UI32Attr:$capacity
     );
 
     let results = (outs QueueType);
+    let hasVerifier = 1;
+}
+
+def PushOp : Spmc_Op<"push_back"> {
+    let summary = "push";
+    let description = [{
+        Push_back operation pushes a value of type T onto the back of a queue with element type T
+        in a thread-safe manner. This is used by the single producer to add new values to the queue,
+        when the queue size is less than its capacity. For example:
+
+        ```mlir
+            spmc.push_back %q, %val : !spmc.queue<i32, 16>
+        ```
+    }];
+
+    let arguments = (ins
+        QueueType:$queue,
+        AnyType:$value
+    );
+
+    let assemblyFormat = "$queue `,` $value attr-dict `:` `(` type($queue) `,` type($value) `)`";
+
+    // verifies that $value shares the same type as $queue .element
+    let hasVerifier = 1;
+}
+
+def PopOp : Spmc_Op<"pop_front"> {
+    let summary = "pop";
+    let description = [{
+        Pop_front operation pops a value of type T from the front of a queue with element type T
+        in a thread-safe manner. This can be called by multiple consumers to remove value from the queue,
+        when the queue size is greater than zero. For example:
+
+        ```
+            spmc.pop_front %q : !spmc.queue<i32, 16>
+        ```
+    }];
+
+    let arguments = (ins QueueType:$queue);
+    let results = (outs AnyType:$value);
+
+    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` type($value)";
+
+    // verifies that $value shares the same type as $queue .element
     let hasVerifier = 1;
 }
 

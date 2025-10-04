@@ -1,12 +1,14 @@
 #include "dialect/SpmcDialect.h"
 
-#include "mlir/IR/AsmState.h"
-#include "mlir/IR/BuiltinOps.h"
-#include "mlir/IR/MLIRContext.h"
-#include "mlir/Parser/Parser.h"
+#include <mlir/IR/AsmState.h>
+#include <mlir/IR/MLIRContext.h>
+#include <mlir/Parser/Parser.h>
 
-#include "llvm/Support/CommandLine.h"
+#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
+#include <mlir/IR/DialectRegistry.h>
+#include <mlir/InitAllDialects.h>
+#include <mlir/InitAllPasses.h>
 
 namespace cl = llvm::cl;
 
@@ -19,6 +21,11 @@ static cl::opt<enum Action> emitAction(
     cl::values(clEnumValN(DumpMLIR, "mlir", "output the MLIR dump")));
 
 int main(int argc, char **argv) {
+    mlir::DialectRegistry registry;
+    registry.insert<mlir::spmc::SpmcDialect>();
+    mlir::registerAllDialects(registry);
+    mlir::registerAllPasses();
+
     mlir::registerAsmPrinterCLOptions();
     mlir::registerMLIRContextCLOptions();
     llvm::cl::ParseCommandLineOptions(argc, argv, "spmc compiler\n");
