@@ -1,4 +1,4 @@
-#include "spmc/SpmcDialect.h"
+#include "dialect/SpmcDialect.h"
 
 #include "mlir/IR/AsmState.h"
 #include "mlir/IR/BuiltinOps.h"
