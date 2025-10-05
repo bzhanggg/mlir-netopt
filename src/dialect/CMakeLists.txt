@@ -20,4 +20,9 @@ add_mlir_dialect_library(MLIRSpmc
         SpmcOpsIncGen
 
     LINK_LIBS PUBLIC
+        MLIRIR
+        MLIRInferTypeOpInterface
+        MLIRSideEffectInterfaces
+        MLIRDialect
+        MLIRSupport
 )

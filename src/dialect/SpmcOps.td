@@ -15,7 +15,7 @@ include "mlir/Interfaces/SideEffectInterfaces.td"
 //  * A list of traits for the operation
 class Spmc_Op<string mnemonic, list<Trait> traits = []> : Op<Spmc_Dialect, mnemonic, traits>;
 
-def CreateOp : Spmc_Op<"create"> {
+def CreateOp : Spmc_Op<"create", [Pure, InferTypeOpInterface]> {
     let summary = "create queue";
     let description = [{
         Create operation instantiates a queue (ring buffer) with a fixed capacity and element type,
@@ -58,7 +58,7 @@ def PushOp : Spmc_Op<"push_back"> {
     let hasVerifier = 1;
 }
 
-def PopOp : Spmc_Op<"pop_front"> {
+def PopOp : Spmc_Op<"pop_front", [InferTypeOpInterface]> {
     let summary = "pop";
     let description = [{
         Pop_front operation pops a value of type T from the front of a queue with element type T
@@ -73,7 +73,7 @@ def PopOp : Spmc_Op<"pop_front"> {
     let arguments = (ins QueueType:$queue);
     let results = (outs AnyType:$value);
 
-    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` type($value)";
+    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` qualified(type($value))";
 
     // verifies that $value shares the same type as $queue .element
     let hasVerifier = 1;
