@@ -35,6 +35,29 @@ def CreateOp : Spmc_Op<"create", [Pure, DeclareOpInterfaceMethods<InferTypeOpInt
     let hasVerifier = 1;
 }
 
+// TODO: remove this. This is bad because size should not be checked only when
+// calling the size op. Instead, find a way to store the size value as an
+// attribute of QueueType.
+def SizeOp : Spmc_Op<"size", [Pure]> {
+    let summary = "size";
+    let description = [{
+        Size operation returns the current size of the queue, which is an integer value between [0, capacity].
+        For example:
+
+        ```mlir
+            %s = spmc.size %q : !spmc.queue<i32, 16> -> ui32
+        ```
+    }];
+
+    let arguments = (ins QueueType:$queue);
+    let results = (outs UI32:$size);
+
+    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` type($size)";
+
+    // verifies that $size is an integer value in range [0, capacity]
+    let hasVerifier = 1;
+}
+
 def PushOp : Spmc_Op<"push_back"> {
     let summary = "push";
     let description = [{
