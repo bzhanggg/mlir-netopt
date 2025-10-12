@@ -15,7 +15,7 @@ include "mlir/Interfaces/SideEffectInterfaces.td"
 //  * A list of traits for the operation
 class Spmc_Op<string mnemonic, list<Trait> traits = []> : Op<Spmc_Dialect, mnemonic, traits>;
 
-def CreateOp : Spmc_Op<"create", [Pure, InferTypeOpInterface]> {
+def CreateOp : Spmc_Op<"create", [Pure, DeclareOpInterfaceMethods<InferTypeOpInterface>]> {
     let summary = "create queue";
     let description = [{
         Create operation instantiates a queue (ring buffer) with a fixed capacity and element type,
@@ -30,8 +30,8 @@ def CreateOp : Spmc_Op<"create", [Pure, InferTypeOpInterface]> {
         TypeAttr:$element,
         UI32Attr:$capacity
     );
+    let results = (outs Variadic<QueueType>:$result);
 
-    let results = (outs QueueType);
     let hasVerifier = 1;
 }
 
@@ -58,7 +58,7 @@ def PushOp : Spmc_Op<"push_back"> {
     let hasVerifier = 1;
 }
 
-def PopOp : Spmc_Op<"pop_front", [InferTypeOpInterface]> {
+def PopOp : Spmc_Op<"pop_front", [DeclareOpInterfaceMethods<InferTypeOpInterface>]> {
     let summary = "pop";
     let description = [{
         Pop_front operation pops a value of type T from the front of a queue with element type T
@@ -71,7 +71,7 @@ def PopOp : Spmc_Op<"pop_front", [InferTypeOpInterface]> {
     }];
 
     let arguments = (ins QueueType:$queue);
-    let results = (outs AnyType:$value);
+    let results = (outs Variadic<AnyType>:$value);
 
     let assemblyFormat = "$queue attr-dict `:` type($queue) `->` qualified(type($value))";
 

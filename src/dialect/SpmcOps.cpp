@@ -3,9 +3,9 @@
 
 #include <mlir/IR/Builders.h>
 #include <mlir/IR/BuiltinAttributes.h>
+#include <mlir/Interfaces/InferTypeOpInterface.h>
 #include <mlir/IR/Diagnostics.h>
 #include <mlir/IR/MLIRContext.h>
-#include <optional>
 
 namespace mlir {
 namespace spmc {
