@@ -17,10 +17,7 @@
 #include "src/dialect/SpmcOps.h.inc"
 
 namespace mlir {
-namespace spmc {
-
-}
-}
-
+namespace spmc {}
+} // namespace mlir
 
 #endif // SPMC_OPS_H_
