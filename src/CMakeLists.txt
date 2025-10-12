@@ -1,7 +1,13 @@
 add_subdirectory(dialect)
 
+get_property(dialect_libs GLOBAL PROPERTY MLIR_DIALECT_LIBS)
+get_property(conversion_libs GLOBAL PROPERTY MLIR_CONVERSION_LIBS)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 # create compiler executable
-add_executable(spmcc spmcc.cpp)
+add_llvm_executable(spmcc spmcc.cpp)
 
 llvm_update_compile_flags(spmcc)
 target_link_libraries(
@@ -13,4 +19,4 @@ target_link_libraries(
             MLIRPass
 )
 
-mlir_check_link_libraries(spmcc)
+mlir_check_all_link_libraries(spmcc)

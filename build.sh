@@ -20,4 +20,4 @@ popd
 
 cmake --build $BUILD_DIR --target mlir-headers
 cmake --build $BUILD_DIR --target mlir-doc
-cmake --build $BUILD_DIR --target MLIRPoly
+cmake --build $BUILD_DIR --target MLIRSpmc
