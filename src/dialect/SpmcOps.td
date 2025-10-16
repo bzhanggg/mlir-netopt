@@ -30,7 +30,7 @@ def CreateOp : Spmc_Op<"create", [Pure, DeclareOpInterfaceMethods<InferTypeOpInt
         TypeAttr:$element,
         UI32Attr:$capacity
     );
-    let results = (outs Variadic<QueueType>:$result);
+    let results = (outs QueueType:$result);
 
     let hasVerifier = 1;
 }
@@ -66,17 +66,51 @@ def PopOp : Spmc_Op<"pop_front", [DeclareOpInterfaceMethods<InferTypeOpInterface
         when the queue size is greater than zero. For example:
 
         ```
-            spmc.pop_front %q : !spmc.queue<i32, 16>
+            spmc.pop_front %q : !spmc.queue<i32, 16> -> i32
         ```
     }];
 
     let arguments = (ins QueueType:$queue);
-    let results = (outs Variadic<AnyType>:$value);
+    let results = (outs AnyType:$value);
 
-    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` qualified(type($value))";
+    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` type($value)";
 
     // verifies that $value shares the same type as $queue .element
     let hasVerifier = 1;
+}
+
+def AssertNotFullOp : Spmc_Op<"assert_not_full", [Pure]> {
+    let summary = "assert queue is not full";
+    let description = [{
+        Assert_not_full operation checks that the current queue size is less than its capacity at
+        runtime. It does not modify the queue but may throw a runtime failure if the condition
+        is violated. For example:
+
+        ```mlir
+        spmc.assert_not_full %q
+        spmc.push_back %q, %val : !spmc.queue<i32, 16>
+        ```
+    }];
+
+    let arguments = (ins QueueType:$queue);
+    let assemblyFormat = "$queue attr-dict `:` type($queue)";
+}
+
+def AssertNotEmptyOp : Spmc_Op<"assert_not_empty", [Pure]> {
+    let summary = "assert queue is not empty";
+    let description = [{
+        Assert_not_full operation checks that the current queue size is greater than zero at
+        runtime. It does not modify the queue but may throw a runtime failure if the condition
+        is violated. For example:
+
+        ```mlir
+        spmc.assert_not_empty %q
+        spmc.pop_front %q : !spmc.queue<i32, 16> -> i32
+        ```
+    }];
+
+    let arguments = (ins QueueType:$queue);
+    let assemblyFormat = "$queue attr-dict `:` type($queue)";
 }
 
 #endif // SPMC_OPS_TD_

@@ -1,6 +1,9 @@
 #include "src/dialect/SpmcOps.h"
 #include "src/dialect/SpmcTypes.h"
 
+#include <llvm/Support/Casting.h>
+#include <llvm/Support/LogicalResult.h>
+#include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/IR/Builders.h>
 #include <mlir/IR/BuiltinAttributes.h>
 #include <mlir/IR/Diagnostics.h>
@@ -20,6 +23,28 @@ llvm::LogicalResult CreateOp::inferReturnTypes(
 
   QueueType qType = QueueType::get(context, eltType, capacity);
   inferredReturnTypes.emplace_back(qType);
+  return success();
+}
+
+llvm::LogicalResult PushOp::verify() {
+  QueueType qType = llvm::dyn_cast<QueueType>(getQueue().getType());
+  if (!qType) {
+    return emitOpError("expected queue type for first operand");
+  }
+  Type elementType = qType.getElement();
+  Type valueType = getValue().getType();
+
+  if (valueType != elementType) {
+    std::string valueTypeStr;
+    std::string elementTypeStr;
+    llvm::raw_string_ostream valueOs(valueTypeStr);
+    llvm::raw_string_ostream elementOs(elementTypeStr);
+    valueType.print(valueOs);
+    elementType.print(elementOs);
+    return emitOpError() << "value type " << valueTypeStr
+                         << " does not match queue element type "
+                         << elementTypeStr;
+  }
   return success();
 }
 
