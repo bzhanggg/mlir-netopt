@@ -30,7 +30,7 @@ def CreateOp : Spmc_Op<"create", [Pure, DeclareOpInterfaceMethods<InferTypeOpInt
         TypeAttr:$element,
         UI32Attr:$capacity
     );
-    let results = (outs Variadic<QueueType>:$result);
+    let results = (outs QueueType:$result);
 
     let hasVerifier = 1;
 }
@@ -71,9 +71,9 @@ def PopOp : Spmc_Op<"pop_front", [DeclareOpInterfaceMethods<InferTypeOpInterface
     }];
 
     let arguments = (ins QueueType:$queue);
-    let results = (outs Variadic<AnyType>:$value);
+    let results = (outs AnyType:$value);
 
-    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` qualified(type($value))";
+    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` type($value)";
 
     // verifies that $value shares the same type as $queue .element
     let hasVerifier = 1;
