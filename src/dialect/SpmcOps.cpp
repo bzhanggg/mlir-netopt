@@ -3,13 +3,12 @@
 
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/LogicalResult.h>
+#include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/IR/Builders.h>
 #include <mlir/IR/BuiltinAttributes.h>
 #include <mlir/IR/Diagnostics.h>
 #include <mlir/IR/MLIRContext.h>
 #include <mlir/Interfaces/InferTypeOpInterface.h>
-#include <mlir/Dialect/Arith/IR/Arith.h>
-#include <string>
 
 namespace mlir {
 namespace spmc {
@@ -27,31 +26,33 @@ llvm::LogicalResult CreateOp::inferReturnTypes(
   return success();
 }
 
-// TODO: remove this. This is bad because size should not be checked only when
-// calling the size op. Instead, find a way to store the size value as an
-// attribute of QueueType.
-llvm::LogicalResult SizeOp::verify() {
+llvm::LogicalResult PushOp::verify() {
   QueueType qType = llvm::dyn_cast<QueueType>(getQueue().getType());
-  if (!qType)
-    return emitOpError("expected queue type for operand");
-  unsigned capacity = qType.getCapacity();
+  if (!qType) {
+    return emitOpError("expected queue type for first operand");
+  }
+  Type elementType = qType.getElement();
+  Type valueType = getValue().getType();
 
-  Value size = getSize();
-  if (auto constOp = size.getDefiningOp<arith::ConstantIntOp>()) {
-    if (auto intAttr = llvm::dyn_cast<IntegerAttr>(constOp.getValue())) {
-      uint32_t sizeVal = intAttr.getUInt();
-      if (sizeVal > capacity) {
-        return emitOpError("queue size " + std::to_string(sizeVal) + "cannot be larger than capacity " + std::to_string(capacity));
-      }
-    }
+  if (valueType != elementType) {
+    std::string valueTypeStr;
+    std::string elementTypeStr;
+    llvm::raw_string_ostream valueOs(valueTypeStr);
+    llvm::raw_string_ostream elementOs(elementTypeStr);
+    valueType.print(valueOs);
+    elementType.print(elementOs);
+    return emitOpError() << "value type " << valueTypeStr
+                         << " does not match queue element type "
+                         << elementTypeStr;
   }
   return success();
 }
 
-llvm::LogicalResult PopOp::inferReturnTypes(
-    MLIRContext *context, std::optional<Location> location, ValueRange operands,
-    DictionaryAttr attributes, OpaqueProperties properties, RegionRange regions,
-    llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
+llvm::LogicalResult
+PopOp::inferReturnTypes(MLIRContext *context, std::optional<Location> location,
+                        ValueRange operands, DictionaryAttr attributes,
+                        OpaqueProperties properties, RegionRange regions,
+                        llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
   PopOp::Adaptor adaptor(operands, attributes, properties, regions);
   QueueType qType =
       llvm::dyn_cast<spmc::QueueType>(adaptor.getQueue().getType());

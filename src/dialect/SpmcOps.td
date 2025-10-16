@@ -35,29 +35,6 @@ def CreateOp : Spmc_Op<"create", [Pure, DeclareOpInterfaceMethods<InferTypeOpInt
     let hasVerifier = 1;
 }
 
-// TODO: remove this. This is bad because size should not be checked only when
-// calling the size op. Instead, find a way to store the size value as an
-// attribute of QueueType.
-def SizeOp : Spmc_Op<"size", [Pure]> {
-    let summary = "size";
-    let description = [{
-        Size operation returns the current size of the queue, which is an integer value between [0, capacity].
-        For example:
-
-        ```mlir
-            %s = spmc.size %q : !spmc.queue<i32, 16> -> ui32
-        ```
-    }];
-
-    let arguments = (ins QueueType:$queue);
-    let results = (outs UI32:$size);
-
-    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` type($size)";
-
-    // verifies that $size is an integer value in range [0, capacity]
-    let hasVerifier = 1;
-}
-
 def PushOp : Spmc_Op<"push_back"> {
     let summary = "push";
     let description = [{
@@ -89,7 +66,7 @@ def PopOp : Spmc_Op<"pop_front", [DeclareOpInterfaceMethods<InferTypeOpInterface
         when the queue size is greater than zero. For example:
 
         ```
-            spmc.pop_front %q : !spmc.queue<i32, 16>
+            spmc.pop_front %q : !spmc.queue<i32, 16> -> i32
         ```
     }];
 
@@ -100,6 +77,40 @@ def PopOp : Spmc_Op<"pop_front", [DeclareOpInterfaceMethods<InferTypeOpInterface
 
     // verifies that $value shares the same type as $queue .element
     let hasVerifier = 1;
+}
+
+def AssertNotFullOp : Spmc_Op<"assert_not_full", [Pure]> {
+    let summary = "assert queue is not full";
+    let description = [{
+        Assert_not_full operation checks that the current queue size is less than its capacity at
+        runtime. It does not modify the queue but may throw a runtime failure if the condition
+        is violated. For example:
+
+        ```mlir
+        spmc.assert_not_full %q
+        spmc.push_back %q, %val : !spmc.queue<i32, 16>
+        ```
+    }];
+
+    let arguments = (ins QueueType:$queue);
+    let assemblyFormat = "$queue attr-dict `:` type($queue)";
+}
+
+def AssertNotEmptyOp : Spmc_Op<"assert_not_empty", [Pure]> {
+    let summary = "assert queue is not empty";
+    let description = [{
+        Assert_not_full operation checks that the current queue size is greater than zero at
+        runtime. It does not modify the queue but may throw a runtime failure if the condition
+        is violated. For example:
+
+        ```mlir
+        spmc.assert_not_empty %q
+        spmc.pop_front %q : !spmc.queue<i32, 16> -> i32
+        ```
+    }];
+
+    let arguments = (ins QueueType:$queue);
+    let assemblyFormat = "$queue attr-dict `:` type($queue)";
 }
 
 #endif // SPMC_OPS_TD_
