@@ -22,7 +22,7 @@ def CreateOp : Spmc_Op<"create", [Pure, DeclareOpInterfaceMethods<InferTypeOpInt
         both attached to the operation as attributes. For example:
 
         ```mlir
-            %q = spmc.create : !spmc.queue<element = i32, capacity = 16>;
+        %q = spmc.create : !spmc.queue<element = i32, capacity = 16>;
         ```
     }];
 
@@ -43,7 +43,7 @@ def PushOp : Spmc_Op<"push_back"> {
         when the queue size is less than its capacity. For example:
 
         ```mlir
-            spmc.push_back %q, %val : !spmc.queue<i32, 16>
+        spmc.push_back %q, %val : !spmc.queue<i32, 16>
         ```
     }];
 
@@ -65,8 +65,8 @@ def PopOp : Spmc_Op<"pop_front", [DeclareOpInterfaceMethods<InferTypeOpInterface
         in a thread-safe manner. This can be called by multiple consumers to remove value from the queue,
         when the queue size is greater than zero. For example:
 
-        ```
-            spmc.pop_front %q : !spmc.queue<i32, 16> -> i32
+        ```mlir
+        spmc.pop_front %q : !spmc.queue<i32, 16> -> i32
         ```
     }];
 
