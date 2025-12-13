@@ -16,6 +16,7 @@ add_dependencies(mlir-headers SpmcOpsIncGen)
 add_mlir_dialect_library(MLIRSpmc
     SpmcDialect.cpp
     SpmcOps.cpp
+    SpmcTypes.cpp
     DEPENDS
         SpmcOpsIncGen
 

@@ -4,11 +4,6 @@
 include "SpmcDialect.td"
 include "mlir/IR/AttrTypeBase.td"
 
-// Inherits from base TypeDef class. Provides:
-//  * Parent dialect of the type
-//  * Fully qualified name of the type
-//  * Mnemonic for the type (simplified name for internal reference)
-//  * A list of traits for the type
 class Spmc_Type<string name, string typeMnemonic, list<Trait> traits = []> : TypeDef<Spmc_Dialect, name, traits> {
     let mnemonic = typeMnemonic;
 }
