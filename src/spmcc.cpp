@@ -35,9 +35,11 @@ int main(int argc, char **argv) {
 
   switch (emitAction) {
   case Action::DumpAST:
-    llvm::outs() << "Dumping AST here...";
+    llvm::outs() << "Dumping AST here...\n";
+    break;
   case Action::DumpMLIR:
-    llvm::outs() << "Dumping MLIR here...";
+    llvm::outs() << "Dumping MLIR here...\n";
+    break;
   default:
     llvm::errs() << "No action specified, usage: -emit=<action>\n";
   }

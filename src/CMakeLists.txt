@@ -20,6 +20,8 @@ target_link_libraries(
         MLIRIR
         MLIRParser
         MLIRPass
+        MLIRRegisterAllDialects
+        MLIRRegisterAllPasses
 )
 
 mlir_check_all_link_libraries(spmcc)
