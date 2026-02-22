@@ -1,4 +1,5 @@
 add_subdirectory(dialect)
+add_subdirectory(transform)
 
 get_property(dialect_libs GLOBAL PROPERTY MLIR_DIALECT_LIBS)
 get_property(conversion_libs GLOBAL PROPERTY MLIR_CONVERSION_LIBS)
@@ -15,11 +16,13 @@ target_link_libraries(
     PRIVATE
         ${dialect_libs}
         ${conversion_libs}
+        SpmcTransforms
         MLIRSpmc
         MLIRAnalysis
         MLIRIR
         MLIRParser
         MLIRPass
+        MLIROptLib
         MLIRRegisterAllDialects
         MLIRRegisterAllPasses
 )
