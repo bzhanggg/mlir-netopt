@@ -12,11 +12,16 @@ add_llvm_executable(spmcc spmcc.cpp)
 llvm_update_compile_flags(spmcc)
 target_link_libraries(
     spmcc
-    PRIVATE MLIRSpmc
-            MLIRAnalysis
-            MLIRIR
-            MLIRParser
-            MLIRPass
+    PRIVATE
+        ${dialect_libs}
+        ${conversion_libs}
+        MLIRSpmc
+        MLIRAnalysis
+        MLIRIR
+        MLIRParser
+        MLIRPass
+        MLIRRegisterAllDialects
+        MLIRRegisterAllPasses
 )
 
 mlir_check_all_link_libraries(spmcc)
