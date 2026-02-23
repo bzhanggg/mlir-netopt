@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
   mlir::registerAllDialects(registry);
 
   mlir::spmc::registerDeadQueueEliminationPasses();
-  // mlir::registerAllPasses();
+  mlir::registerAllPasses();
 
   mlir::registerAsmPrinterCLOptions();
   mlir::registerMLIRContextCLOptions();
