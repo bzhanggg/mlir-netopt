@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
   registry.insert<mlir::spmc::SpmcDialect>();
   mlir::registerAllDialects(registry);
 
-  mlir::PassRegistration<mlir::spmc::DeadQueueElimination>();
+  // mlir::PassRegistration<mlir::spmc::DeadQueueElimination>();
   mlir::registerAllPasses();
 
   mlir::registerAsmPrinterCLOptions();

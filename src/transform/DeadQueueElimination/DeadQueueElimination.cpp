@@ -7,6 +7,8 @@
 #include <mlir/IR/Value.h>
 #include <mlir/Pass/Pass.h>
 
+#include "src/dialect/SpmcDialect.h"
+
 #define DEBUG_TYPE "dead-queue-elimination"
 
 namespace mlir {

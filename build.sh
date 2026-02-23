@@ -21,4 +21,5 @@ popd
 cmake --build $BUILD_DIR --target mlir-headers
 cmake --build $BUILD_DIR --target mlir-doc
 cmake --build $BUILD_DIR --target MLIRSpmc
+cmake --build $BUILD_DIR --target MLIRDeadQueueEliminationPasses
 cmake --build $BUILD_DIR --target spmcc

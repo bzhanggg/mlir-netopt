@@ -8,10 +8,13 @@ add_mlir_library(DeadQueueEliminationPasses
 
     ADDITIONAL_HEADER_DIRS
     ${PROJECT_SOURCE_DIR}/src/transform/DeadQueueElimination
+    ${PROJECT_SOURCE_DIR}/src/dialect
 
     DEPENDS
-    MLIRSpmc
     MLIRDeadQueueEliminationPasses
+    MLIRSpmc
 
     LINK_LIBS PUBLIC
+    MLIRIR
+    MLIRPass
 )
