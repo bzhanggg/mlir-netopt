@@ -12,7 +12,6 @@
 #include <mlir/Pass/Pass.h>
 #include <mlir/Transforms/GreedyPatternRewriteDriver.h>
 
-#include "src/dialect/SpmcDialect.h"
 #include "src/dialect/SpmcOps.h"
 
 #define DEBUG_TYPE "dead-queue-elimination"
