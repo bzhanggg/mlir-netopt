@@ -67,7 +67,9 @@ PopOp::inferReturnTypes(MLIRContext *context, std::optional<Location> location,
 
   if (!qType)
     return emitOptionalError(location, "Expected queue operand");
-
+  // Pop is non-blocking and returns a success flag followed by the value.
+  // Emit the i1 success type first, then the element type from the queue.
+  inferredReturnTypes.emplace_back(IntegerType::get(context, 1));
   inferredReturnTypes.emplace_back(qType.getElement());
   return success();
 }

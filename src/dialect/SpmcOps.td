@@ -38,12 +38,12 @@ def CreateOp : Spmc_Op<"create", [Pure, DeclareOpInterfaceMethods<InferTypeOpInt
 def PushOp : Spmc_Op<"push_back"> {
     let summary = "push";
     let description = [{
-        Push_back operation pushes a value of type T onto the back of a queue with element type T
-        in a thread-safe manner. This is used by the single producer to add new values to the queue,
-        when the queue size is less than its capacity. For example:
+        Push_back operation pushes a value of type T onto the back of a queue with element type T.
+        It returns true when the operation is successful (i.e. when the queue was not full at time
+        of push), and false otherwise. For example:
 
         ```mlir
-        spmc.push_back %q, %val : !spmc.queue<i32, 16>
+        %rc = spmc.push_back %q, %val : !spmc.queue<i32, 16> -> i1
         ```
     }];
 
@@ -51,8 +51,9 @@ def PushOp : Spmc_Op<"push_back"> {
         QueueType:$queue,
         AnyType:$value
     );
+    let results = (outs I1:$success);
 
-    let assemblyFormat = "$queue `,` $value attr-dict `:` `(` type($queue) `,` type($value) `)`";
+    let assemblyFormat = "$queue `,` $value attr-dict `:` `(` type($queue) `,` type($value) `)` `->` type($success)";
 
     // verifies that $value shares the same type as $queue .element
     let hasVerifier = 1;
@@ -71,46 +72,12 @@ def PopOp : Spmc_Op<"pop_front", [DeclareOpInterfaceMethods<InferTypeOpInterface
     }];
 
     let arguments = (ins QueueType:$queue);
-    let results = (outs AnyType:$value);
+    let results = (outs I1:$success, AnyType:$value);
 
-    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` type($value)";
+    let assemblyFormat = "$queue attr-dict `:` type($queue) `->` `(` type($success) `,` type($value) `)`";
 
     // verifies that $value shares the same type as $queue .element
     let hasVerifier = 1;
-}
-
-def AssertNotFullOp : Spmc_Op<"assert_not_full", [Pure]> {
-    let summary = "assert queue is not full";
-    let description = [{
-        Assert_not_full operation checks that the current queue size is less than its capacity at
-        runtime. It does not modify the queue but may throw a runtime failure if the condition
-        is violated. For example:
-
-        ```mlir
-        spmc.assert_not_full %q
-        spmc.push_back %q, %val : !spmc.queue<i32, 16>
-        ```
-    }];
-
-    let arguments = (ins QueueType:$queue);
-    let assemblyFormat = "$queue attr-dict `:` type($queue)";
-}
-
-def AssertNotEmptyOp : Spmc_Op<"assert_not_empty", [Pure]> {
-    let summary = "assert queue is not empty";
-    let description = [{
-        Assert_not_full operation checks that the current queue size is greater than zero at
-        runtime. It does not modify the queue but may throw a runtime failure if the condition
-        is violated. For example:
-
-        ```mlir
-        spmc.assert_not_empty %q
-        spmc.pop_front %q : !spmc.queue<i32, 16> -> i32
-        ```
-    }];
-
-    let arguments = (ins QueueType:$queue);
-    let assemblyFormat = "$queue attr-dict `:` type($queue)";
 }
 
 #endif // SPMC_OPS_TD_

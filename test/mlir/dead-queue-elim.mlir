@@ -14,7 +14,7 @@ func.func @dead_queue_is_eliminated() -> () {
 // CHECK: spmc.push_back
 func.func @pushed_queue_is_not_eliminated(%val: i32) -> () {
     %q = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
-    "spmc.push_back"(%q, %val) : (!spmc.queue<i32, 16>, i32) -> ()
+    %rc = "spmc.push_back"(%q, %val) : (!spmc.queue<i32, 16>, i32) -> i1
 
     func.return
 }
@@ -25,7 +25,7 @@ func.func @pushed_queue_is_not_eliminated(%val: i32) -> () {
 // CHECK: spmc.pop_front
 func.func @popped_queue_is_not_eliminated() -> () {
     %q = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
-    "spmc.pop_front"(%q) : (!spmc.queue<i32, 16>) -> i32
+    %rc, %v = "spmc.pop_front"(%q) : (!spmc.queue<i32, 16>) -> (i1, i32)
 
     func.return
 }
@@ -37,8 +37,8 @@ func.func @popped_queue_is_not_eliminated() -> () {
 // CHECK: spmc.pop_front
 func.func @queue_with_multiple_use(%val: i32) -> () {
     %q = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
-    "spmc.push_back"(%q, %val) : (!spmc.queue<i32, 16>, i32) -> ()
-    "spmc.pop_front"(%q) : (!spmc.queue<i32, 16>) -> i32
+    %rc1 = "spmc.push_back"(%q, %val) : (!spmc.queue<i32, 16>, i32) -> i1
+    %rc2, %v = "spmc.pop_front"(%q) : (!spmc.queue<i32, 16>) -> (i1, i32)
     func.return
 }
 
@@ -48,7 +48,7 @@ func.func @queue_with_multiple_use(%val: i32) -> () {
 // CHECK: spmc.pop_front
 func.func @queue_only_in_result_operand(%val: i32) -> () {
     %q = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
-    %result = "spmc.pop_front"(%q) : (!spmc.queue<i32, 16>) -> i32
+    %rc, %v = "spmc.pop_front"(%q) : (!spmc.queue<i32, 16>) -> (i1, i32)
     func.return
 }
 
@@ -74,7 +74,7 @@ func.func @multiple_dead_queues(%val: i32) -> () {
     %q1 = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
     %q2 = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
     %q3 = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
-    "spmc.push_back"(%q3, %val) : (!spmc.queue<i32, 16>, i32) -> ()
+    %rc = "spmc.push_back"(%q3, %val) : (!spmc.queue<i32, 16>, i32) -> i1
     func.return
 }
 
