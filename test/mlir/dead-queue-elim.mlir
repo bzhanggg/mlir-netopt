@@ -1,18 +1,18 @@
 func.func @dead_queue_is_eliminated() -> () {
-    %unused_queue = "spmc.create"() : () -> !spmc.queue
+    %unused_queue = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
     func.return
 }
 
 func.func @pushed_queue_is_not_eliminated(%val: i32) -> () {
-    %q = "spmc.create"() : () -> !spmc.queue
-    "spmc.push_back"(%q, %val) : (!spmc.queue, i32) -> ()
+    %q = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
+    "spmc.push_back"(%q, %val) : (!spmc.queue<i32, 16>, i32) -> ()
 
     func.return
 }
 
 func.func @popped_queue_is_not_eliminated() -> () {
-    %q = "spmc.create"() : () -> !spmc.queue
-    "spmc.pop_front"(%q) : (!spmc.queue) -> ()
+    %q = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
+    "spmc.pop_front"(%q) : (!spmc.queue<i32, 16>) -> i32
 
     func.return
 }

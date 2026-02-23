@@ -1,5 +1,6 @@
 #include "dialect/SpmcDialect.h"
 #include "transform/DeadQueueElimination/DeadQueueElimination.h"
+#include "transform/DeadQueueElimination/Passes.h"
 
 #include <mlir/IR/AsmState.h>
 #include <mlir/IR/MLIRContext.h>
@@ -29,8 +30,8 @@ int main(int argc, char **argv) {
   registry.insert<mlir::spmc::SpmcDialect>();
   mlir::registerAllDialects(registry);
 
-  // mlir::PassRegistration<mlir::spmc::DeadQueueElimination>();
-  mlir::registerAllPasses();
+  mlir::spmc::registerDeadQueueEliminationPasses();
+  // mlir::registerAllPasses();
 
   mlir::registerAsmPrinterCLOptions();
   mlir::registerMLIRContextCLOptions();
