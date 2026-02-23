@@ -8,10 +8,10 @@ func.func @dead_queue_is_eliminated() -> () {
     func.return
 }
 
-// Test 2: Queue with push - should NOT be eliminated
+// Test 2: Queue with push - should be eliminated
 // CHECK-LABEL: @pushed_queue_is_not_eliminated
-// CHECK: spmc.create
-// CHECK: spmc.push_back
+// CHECK-NOT: spmc.create
+// CHECK-NOT: spmc.push_back
 func.func @pushed_queue_is_not_eliminated(%val: i32) -> () {
     %q = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
     %rc = "spmc.push_back"(%q, %val) : (!spmc.queue<i32, 16>, i32) -> i1
@@ -30,7 +30,7 @@ func.func @popped_queue_is_not_eliminated() -> () {
     func.return
 }
 
-// Test 4: Queue with multiple uses - should NOT be eliminated
+// Test 4: Queue with reads and writes - should NOT be eliminated
 // CHECK-LABEL: @queue_with_multiple_use
 // CHECK: spmc.create
 // CHECK: spmc.push_back
@@ -68,8 +68,8 @@ func.func @queue_in_control_flow(%cond: i1) -> () {
 // CHECK-LABEL: @multiple_dead_queues
 // CHECK-NOT: spmc.create
 // CHECK-NOT: spmc.create
-// CHECK: spmc.create
-// CHECK: spmc.push_back
+// CHECK-NOT: spmc.create
+// CHECK-NOT: spmc.push_back
 func.func @multiple_dead_queues(%val: i32) -> () {
     %q1 = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
     %q2 = "spmc.create"() {element=i32, capacity=16 : ui32} : () -> !spmc.queue<i32, 16>
