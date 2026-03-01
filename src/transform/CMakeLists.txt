@@ -1,1 +1,2 @@
 add_subdirectory(DeadQueueElimination)
+add_subdirectory(StateIndependentParallelization)
