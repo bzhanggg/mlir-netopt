@@ -1,5 +1,5 @@
-#ifndef TRANSFORM_PASSES_H_
-#define TRANSFORM_PASSES_H_
+#ifndef SRC_TRANSFORM_DEADQUEUEELIMINATION_PASSES_H_
+#define SRC_TRANSFORM_DEADQUEUEELIMINATION_PASSES_H_
 
 #include "DeadQueueElimination.h"
 
@@ -12,4 +12,4 @@ namespace spmc {
 } // namespace spmc
 } // namespace mlir
 
-#endif // TRANSFORM_PASSES_H_
+#endif // SRC_TRANSFORM_DEADQUEUEELIMINATION_PASSES_H_
