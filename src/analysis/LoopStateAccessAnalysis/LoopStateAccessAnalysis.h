@@ -24,7 +24,8 @@ public:
   explicit LoopStateAccessAnalysis(Operation *op);
 
   bool isParallelizable(affine::AffineForOp forOp) const;
-  const std::optional<LoopAccessInfo> getAccessInfo(affine::AffineForOp forOp) const;
+  const std::optional<LoopAccessInfo>
+  getAccessInfo(affine::AffineForOp forOp) const;
 
 private:
   void analyzeLoop(affine::AffineForOp);

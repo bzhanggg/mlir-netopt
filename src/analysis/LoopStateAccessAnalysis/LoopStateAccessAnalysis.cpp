@@ -16,6 +16,17 @@ LoopStateAccessAnalysis::LoopStateAccessAnalysis(Operation *op) {
 
 void LoopStateAccessAnalysis::analyzeLoop(affine::AffineForOp forOp) {
   LoopAccessInfo info;
+
+  checkSpmcOps(forOp, info);
+  checkIterArgs(forOp, info);
+  checkUnknownSideEffects(forOp, info);
+  checkMemoryDependencies(forOp, info);
+
+  info.isParallelizable = !info.hasSpmc && !info.hasIterArgs &&
+                          !info.hasUnknownSideEffects &&
+                          !info.hasMemoryConflicts;
+
+  loopInfoMap.emplace_or_assign(forOp.getOperation(), std::move(info));
 }
 
 void LoopStateAccessAnalysis::checkSpmcOps(affine::AffineForOp forOp,
@@ -36,47 +47,51 @@ void LoopStateAccessAnalysis::checkIterArgs(affine::AffineForOp forOp,
 }
 
 void LoopStateAccessAnalysis::checkUnknownSideEffects(affine::AffineForOp forOp,
-                                            LoopAccessInfo &info) {
-                                                using namespace affine;
-    forOp.walk([&](Operation* op) {
-        if (op == forOp.getOperation()) {
-            return WalkResult::advance();
-        }
-        if (isa<AffineForOp, AffineYieldOp, AffineIfOp, AffineLoadOp, AffineStoreOp>(op)) {
-            return WalkResult::advance();
-        }
-        if (isMemoryEffectFree(op)) {
-            return WalkResult::advance();
-        }
-        info.hasUnknownSideEffects = true;
-        info.blockingOps.push_back(op);
-        return WalkResult::advance();
-    });
+                                                      LoopAccessInfo &info) {
+  using namespace affine;
+  forOp.walk([&](Operation *op) {
+    if (op == forOp.getOperation()) {
+      return WalkResult::advance();
+    }
+    if (isa<AffineForOp, AffineYieldOp, AffineIfOp, AffineLoadOp,
+            AffineStoreOp>(op)) {
+      return WalkResult::advance();
+    }
+    if (isMemoryEffectFree(op)) {
+      return WalkResult::advance();
+    }
+    info.hasUnknownSideEffects = true;
+    info.blockingOps.push_back(op);
+    return WalkResult::advance();
+  });
 }
 
-void LoopStateAccessAnalysis::checkMemoryDependencies(affine::AffineForOp forOp, LoopAccessInfo& info) {
-    if (info.hasSpmc || info.hasIterArgs || info.hasUnknownSideEffects) {
-        return;
-    }
-    if (!affine::isLoopMemoryParallel(forOp)) {
-        info.hasMemoryConflicts = true;
-    }
+void LoopStateAccessAnalysis::checkMemoryDependencies(affine::AffineForOp forOp,
+                                                      LoopAccessInfo &info) {
+  if (info.hasSpmc || info.hasIterArgs || info.hasUnknownSideEffects) {
+    return;
+  }
+  if (!affine::isLoopMemoryParallel(forOp)) {
+    info.hasMemoryConflicts = true;
+  }
 }
 
-bool LoopStateAccessAnalysis::isParallelizable(affine::AffineForOp forOp) const {
-    auto it = loopInfoMap.find(forOp.getOperation());
-    if (it == loopInfoMap.end()) {
-        return false;
-    }
-    return it->second.isParallelizable;
+bool LoopStateAccessAnalysis::isParallelizable(
+    affine::AffineForOp forOp) const {
+  auto it = loopInfoMap.find(forOp.getOperation());
+  if (it == loopInfoMap.end()) {
+    return false;
+  }
+  return it->second.isParallelizable;
 }
 
-const std::optional<LoopAccessInfo> LoopStateAccessAnalysis::getAccessInfo(affine::AffineForOp forOp) const {
-    auto it = loopInfoMap.find(forOp.getOperation());
-    if (it == loopInfoMap.end()) {
-        return std::nullopt;
-    }
-    return it->second;
+const std::optional<LoopAccessInfo>
+LoopStateAccessAnalysis::getAccessInfo(affine::AffineForOp forOp) const {
+  auto it = loopInfoMap.find(forOp.getOperation());
+  if (it == loopInfoMap.end()) {
+    return std::nullopt;
+  }
+  return it->second;
 }
 
 } // namespace spmc
