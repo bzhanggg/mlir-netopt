@@ -9,6 +9,7 @@ add_mlir_library(StateIndependentParallelizationPasses
     ADDITIONAL_HEADER_DIRS
     ${PROJECT_SOURCE_DIR}/src/transform/StateIndependentParallelization
     ${PROJECT_SOURCE_DIR}/src/dialect
+    ${PROJECT_SOURCE_DIR}/src/analysis/LoopStateAccessAnalysis
 
     DEPENDS
     MLIRStateIndependentParallelizationPasses
@@ -17,4 +18,7 @@ add_mlir_library(StateIndependentParallelizationPasses
     LINK_LIBS PUBLIC
     MLIRIR
     MLIRPass
+    MLIRAffineDialect
+    MLIRAffineUtils
+    LoopStateAccessAnalysis
 )

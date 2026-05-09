@@ -18,7 +18,12 @@ target_link_libraries(
         ${dialect_libs}
         ${conversion_libs}
         DeadQueueEliminationPasses
+        StateIndependentParallelizationPasses
+        LoopStateAccessAnalysis
         MLIRSpmc
+        MLIRAffineDialect
+        MLIRAffineAnalysis
+        MLIRAffineUtils
         MLIRAnalysis
         MLIRIR
         MLIRParser
