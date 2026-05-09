@@ -1,6 +1,7 @@
 #include "dialect/SpmcDialect.h"
 #include "transform/DeadQueueElimination/DeadQueueElimination.h"
 #include "transform/DeadQueueElimination/Passes.h"
+#include "transform/StateIndependentParallelization/StateIndependentParallelization.h"
 #include "transform/StateIndependentParallelization/Passes.h"
 
 #include <mlir/IR/AsmState.h>
