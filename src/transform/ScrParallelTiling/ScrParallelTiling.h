@@ -6,8 +6,8 @@
 namespace mlir {
 namespace spmc {
 
-#define GEN_PASS_DECL_STATEINDEPENDENTPARALLELIZATION
-#include "src/transform/ScrParallelTiling/Passes.h.inc"
+// #define GEN_PASS_DECL_SCRPARALLELTILING
+// #include "src/transform/ScrParallelTiling/Passes.h.inc"
 
 } // namespace spmc
 } // namespace mlir

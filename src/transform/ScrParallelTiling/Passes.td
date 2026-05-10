@@ -3,8 +3,8 @@
 
 include "mlir/Pass/PassBase.td"
 
-def ScrChunkParallelization : Pass<"scr-chunk-parallel"> {
-    let summary = "Parallelize SPMC consumer loops using SCR-style chunking";
+def ScrParallelTiling : Pass<"scr-parallel-tile"> {
+    let summary = "Parallelize SPMC consumer loops using SCR-style tiling";
     let description = [{
         Tiles loops whose only parallelization blocker is spmc.pop_front by a
         configurable core count, then parallelizes the inner (tiled) loop.

@@ -3,6 +3,8 @@
 #include "transform/DeadQueueElimination/Passes.h"
 #include "transform/StateIndependentParallelization/Passes.h"
 #include "transform/StateIndependentParallelization/StateIndependentParallelization.h"
+#include "transform/ScrParallelTiling/Passes.h"
+#include "transform/ScrParallelTiling/ScrParallelTiling.h"
 
 #include <mlir/IR/AsmState.h>
 #include <mlir/IR/MLIRContext.h>
@@ -34,6 +36,7 @@ int main(int argc, char **argv) {
 
   mlir::spmc::registerDeadQueueEliminationPasses();
   mlir::spmc::registerStateIndependentParallelizationPasses();
+  mlir::spmc::registerScrParallelTilingPasses();
   mlir::registerAllPasses();
 
   mlir::registerAsmPrinterCLOptions();

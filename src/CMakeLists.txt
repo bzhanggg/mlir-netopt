@@ -19,6 +19,7 @@ target_link_libraries(
         ${conversion_libs}
         DeadQueueEliminationPasses
         StateIndependentParallelizationPasses
+        ScrParallelTilingPasses
         LoopStateAccessAnalysis
         MLIRSpmc
         MLIRAffineDialect
