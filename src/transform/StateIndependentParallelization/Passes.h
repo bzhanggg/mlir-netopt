@@ -1,6 +1,8 @@
 #ifndef SRC_TRANSFROM_STATEINDEPENDENTPARALLELIZATION_PASSES_H_
 #define SRC_TRANSFROM_STATEINDEPENDENTPARALLELIZATION_PASSES_H_
 
+#include "StateIndependentParallelization.h"
+
 namespace mlir {
 namespace spmc {
 

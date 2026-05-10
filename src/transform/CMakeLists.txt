@@ -1,2 +1,3 @@
 add_subdirectory(DeadQueueElimination)
+add_subdirectory(ScrParallelTiling)
 add_subdirectory(StateIndependentParallelization)
