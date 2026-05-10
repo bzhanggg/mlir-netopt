@@ -13,10 +13,13 @@ namespace spmc {
 
 struct LoopAccessInfo {
   bool hasSpmc = false;
+  bool hasSpmcPush = false;
+  bool hasSpmcPop = false;
   bool hasIterArgs = false;
   bool hasUnknownSideEffects = false;
   bool hasMemoryConflicts = false;
   bool isParallelizable = false;
+  bool isScrCandidate = false;
 
   llvm::SmallVector<const Operation *, 4> blockingOps;
 };
@@ -26,6 +29,7 @@ public:
   explicit LoopStateAccessAnalysis(Operation *op);
 
   bool isParallelizable(affine::AffineForOp forOp) const;
+  bool isScrCandidate(affine::AffineForOp forOp) const;
   const std::optional<LoopAccessInfo>
   getAccessInfo(affine::AffineForOp forOp) const;
 

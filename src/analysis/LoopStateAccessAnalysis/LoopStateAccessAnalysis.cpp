@@ -31,12 +31,15 @@ void LoopStateAccessAnalysis::analyzeLoop(affine::AffineForOp forOp) {
                           !info.hasUnknownSideEffects &&
                           !info.hasMemoryConflicts;
 
+  info.isScrCandidate = info.hasSpmcPop && !info.hasSpmcPush &&
+                        !info.hasIterArgs && !info.hasUnknownSideEffects &&
+                        !info.hasMemoryConflicts;
+
   LLVM_DEBUG({
     llvm::dbgs() << "Loop at " << forOp->getLoc() << ": ";
     if (info.isParallelizable) {
       llvm::dbgs() << "PARALLELIZABLE\n";
-    }
-    else {
+    } else {
       llvm::dbgs() << "NOT PARALLELIZABLE (";
       if (info.hasSpmc) {
         llvm::dbgs() << "spmc_ops ";
@@ -60,11 +63,15 @@ void LoopStateAccessAnalysis::analyzeLoop(affine::AffineForOp forOp) {
 void LoopStateAccessAnalysis::checkSpmcOps(affine::AffineForOp forOp,
                                            LoopAccessInfo &info) {
   forOp.walk([&](Operation *op) {
-    if (isa<spmc::PushOp, spmc::PopOp>(op)) {
-      info.hasSpmc = true;
-      info.blockingOps.push_back(op);
+    if (isa<spmc::PushOp>(op)) {
+      info.hasSpmcPush = true;
+      info.blockingOps.emplace_back(op);
+    } else if (isa<spmc::PopOp>(op)) {
+      info.hasSpmcPop = true;
+      info.blockingOps.emplace_back(op);
     }
   });
+  info.hasSpmc = info.hasSpmcPush || info.hasSpmcPop;
 }
 
 void LoopStateAccessAnalysis::checkIterArgs(affine::AffineForOp forOp,
@@ -81,22 +88,22 @@ void LoopStateAccessAnalysis::checkUnknownSideEffects(affine::AffineForOp forOp,
     if (op == forOp.getOperation()) {
       return WalkResult::advance();
     }
-    if (isa<AffineForOp, AffineYieldOp, AffineIfOp, AffineLoadOp,
-            AffineStoreOp>(op)) {
+    if (isa<AffineForOp, AffineYieldOp, AffineIfOp, AffineLoadOp, AffineStoreOp,
+            spmc::PushOp, spmc::PopOp>(op)) {
       return WalkResult::advance();
     }
     if (isMemoryEffectFree(op)) {
       return WalkResult::advance();
     }
     info.hasUnknownSideEffects = true;
-    info.blockingOps.push_back(op);
+    info.blockingOps.emplace_back(op);
     return WalkResult::advance();
   });
 }
 
 void LoopStateAccessAnalysis::checkMemoryDependencies(affine::AffineForOp forOp,
                                                       LoopAccessInfo &info) {
-  if (info.hasSpmc || info.hasIterArgs || info.hasUnknownSideEffects) {
+  if (info.hasIterArgs || info.hasUnknownSideEffects) {
     return;
   }
   if (!affine::isLoopMemoryParallel(forOp)) {
@@ -111,6 +118,14 @@ bool LoopStateAccessAnalysis::isParallelizable(
     return false;
   }
   return it->second.isParallelizable;
+}
+
+bool LoopStateAccessAnalysis::isScrCandidate(affine::AffineForOp forOp) const {
+  auto it = loopInfoMap.find(forOp.getOperation());
+  if (it == loopInfoMap.end()) {
+    return false;
+  }
+  return it->second.isScrCandidate;
 }
 
 const std::optional<LoopAccessInfo>
