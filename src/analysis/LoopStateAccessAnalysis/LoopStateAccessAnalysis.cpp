@@ -5,7 +5,12 @@
 #include <mlir/Dialect/Affine/Analysis/AffineAnalysis.h>
 #include <mlir/Dialect/Affine/IR/AffineOps.h>
 #include <mlir/Interfaces/SideEffectInterfaces.h>
+
+#include <llvm/Support/Debug.h>
+
 #include <optional>
+
+#define DEBUG_TYPE "loop-state-access-analysis"
 
 namespace mlir {
 namespace spmc {
@@ -25,6 +30,29 @@ void LoopStateAccessAnalysis::analyzeLoop(affine::AffineForOp forOp) {
   info.isParallelizable = !info.hasSpmc && !info.hasIterArgs &&
                           !info.hasUnknownSideEffects &&
                           !info.hasMemoryConflicts;
+
+  LLVM_DEBUG({
+    llvm::dbgs() << "Loop at " << forOp->getLoc() << ": ";
+    if (info.isParallelizable) {
+      llvm::dbgs() << "PARALLELIZABLE\n";
+    }
+    else {
+      llvm::dbgs() << "NOT PARALLELIZABLE (";
+      if (info.hasSpmc) {
+        llvm::dbgs() << "spmc_ops ";
+      }
+      if (info.hasIterArgs) {
+        llvm::dbgs() << "iter_args ";
+      }
+      if (info.hasUnknownSideEffects) {
+        llvm::dbgs() << "unknown_effects ";
+      }
+      if (info.hasMemoryConflicts) {
+        llvm::dbgs() << "memory_conflicts ";
+      }
+      llvm::dbgs() << ")\n";
+    }
+  });
 
   loopInfoMap.emplace_or_assign(forOp.getOperation(), std::move(info));
 }

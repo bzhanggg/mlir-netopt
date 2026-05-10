@@ -6,6 +6,8 @@
 #include <mlir/Dialect/Affine/IR/AffineOps.h>
 #include <mlir/IR/Operation.h>
 
+#include <optional>
+
 namespace mlir {
 namespace spmc {
 
